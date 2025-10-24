@@ -154,7 +154,6 @@ Set schedule: `0 */2 * * *` → runs every 2 hours.
 
 **Vijay Rathore**  
 Founder of [Softment](https://www.softment.com)  
-📍 Ujjain, India  
 📧 vijay@softment.com  
 🐦 [@vijay_softment](https://x.com/vijay_softment)
 

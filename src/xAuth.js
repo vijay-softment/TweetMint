@@ -72,10 +72,12 @@ export async function refreshAccessToken() {
   // If X rotated the refresh_token, we SHOULD persist it somewhere.
   // Railway env can't be auto-updated by code, so:
   // - For MVP we just log a hint for you (do not log the full token publicly in prod).
-  if (
-    data.refresh_token &&
-    data.refresh_token !== process.env.X_REFRESH_TOKEN
-  ) {
+
+  console.log(
+    "✅ refreshed access_token prefix:",
+    data.access_token.slice(0, 12)
+  );
+  if (data.refresh_token) {
     fs.writeFileSync("refresh_token.txt", data.refresh_token);
 
     console.warn(
