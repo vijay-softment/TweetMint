@@ -1,4 +1,3 @@
-// src/xClient.js
 import fetch from "node-fetch";
 import { getValidAccessToken } from "./xAuth_static.js";
 
@@ -16,6 +15,11 @@ export async function postToX(statusText) {
   });
 
   const json = await resp.json();
+
+  if (resp.status === 429) {
+    console.error("Rate limited (429). Will back off. Response:", json);
+    throw new Error("RATE_LIMIT");
+  }
 
   if (!resp.ok) {
     console.error("X API error:", resp.status, json);
