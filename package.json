@@ -1,0 +1,16 @@
+{
+  "name": "softment-x-bot",
+  "version": "1.0.0",
+  "description": "Auto-posts Vijay's dev thoughts to X every 2 hours using AI.",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/job.js",
+    "run-job": "node src/job.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "node-fetch": "^3.3.2"
+  }
+}

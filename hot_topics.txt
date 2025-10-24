@@ -1,0 +1,47 @@
+People are complaining gas fees are insane again today and blaming auditors and “overengineered” Solidity.
+
+Someone almost shipped a staking contract with a reward math bug that could leak funds. Devs arguing if audits are too slow or actually saving TVL.
+
+Everyone is mad at stablecoin teams again because one change in collateral logic could have nuked peg.
+
+Foundry fuzz tests catching edge cases that normal tests miss and nobody wants to admit it.
+
+Flutter devs fighting about scroll jank on Android vs iOS again and who’s to blame.
+
+AWS bills jump-scared people this week and everyone pretending that’s “just startup life”.
+
+Someone bragged they shipped a DeFi contract without Hardhat tests and crypto Twitter is roasting them.
+
+People arguing if NFTs are “dead” again but the real pain is on-chain royalty logic and marketplaces ignoring creator fees.
+
+Another day, another Solidity upgrade that breaks half the old repos.
+
+New debate: Foundry vs Hardhat performance benchmarks — “who compiles faster” wars all over dev Twitter.
+
+Smart contract auditors are complaining they’re treated like villains whenever they reject code for security issues.
+
+Flutter 3.24 just broke some animations again — devs posting side-by-side lag clips on iOS vs Android.
+
+Everyone’s talking about AI tools writing Solidity tests but missing obvious reentrancy issues.
+
+Devs on X fighting about whether DeFi yield is “real revenue” or just fancy dilution.
+
+People realizing gas refunds changed again and some MEV bots are failing silently.
+
+AWS EC2 spot instance pricing spike — startup founders panicking about overnight infra bills.
+
+Solidity devs arguing if modifiers are outdated and should be replaced with internal helper functions.
+
+Foundry’s new coverage report feature exposing half-baked tests people thought were perfect.
+
+People are revisiting the OpenZeppelin library debate again — too heavy or still the gold standard?
+
+Another exploit on a “verified” contract — everyone pointing fingers at bad test coverage.
+
+NFT floor prices tanking again, devs joking that the only thing up is gas fees.
+
+Flutter devs discussing why Cupertino widgets still don’t feel native enough on iOS 18.
+
+Cloudflare outage taking down DeFi dashboards — people tweeting “decentralized btw”.
+
+Devs arguing if EVM should get optional static typing in future forks.
