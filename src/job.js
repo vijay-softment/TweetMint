@@ -1,12 +1,14 @@
-// src/job.js
+import dotenv from "dotenv";
+dotenv.config();
+
+import { generatePost } from "./ai.js";
 import { postToX } from "./xClient.js";
 
 async function main() {
   console.log("=== softment-x-bot job start ===");
 
-  const topicIdea = "Devs debating EVM static typing — again.";
-  const text =
-    "Every few months someone suggests static typing for EVM.\n\nAnd every time, Twitter burns for 48 hours straight.";
+  const topicIdea = "...maybe read from hot_topics.txt here...";
+  const text = await generatePost(topicIdea);
 
   console.log("Tweet content:", text);
 
