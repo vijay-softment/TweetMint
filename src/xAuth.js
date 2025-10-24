@@ -32,7 +32,11 @@ export async function refreshAccessToken() {
   const REFRESH_TOKEN = process.env.X_REFRESH_TOKEN;
   const REDIRECT_URI = process.env.X_REDIRECT_URI;
 
-  // Basic auth header: base64(client_id:client_secret)
+  console.log("DEBUG refreshAccessToken()");
+  console.log("CLIENT_ID prefix:", CLIENT_ID?.slice(0, 6));
+  console.log("REFRESH_TOKEN prefix:", REFRESH_TOKEN?.slice(0, 10));
+  console.log("REDIRECT_URI:", REDIRECT_URI);
+
   const basicAuth = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString(
     "base64"
   );
@@ -54,32 +58,17 @@ export async function refreshAccessToken() {
 
   if (!resp.ok) {
     console.error("Failed to refresh access token:", resp.status, data);
+    // extra debug:
+    console.error("USED REFRESH_TOKEN prefix:", REFRESH_TOKEN?.slice(0, 10));
     throw new Error("Could not refresh X access token");
   }
 
-  // data should look like:
-  // {
-  //   token_type: 'bearer',
-  //   expires_in: 7200,
-  //   access_token: 'NEW_ACCESS_TOKEN',
-  //   scope: 'tweet.write users.read tweet.read offline.access',
-  //   refresh_token: 'NEW_REFRESH_TOKEN'  <-- X may rotate this
-  // }
-
-  // Store new access token in memory so xClient can use it.
   inMemoryAccessToken = data.access_token;
 
-  // If X rotated the refresh_token, we SHOULD persist it somewhere.
-  // Railway env can't be auto-updated by code, so:
-  // - For MVP we just log a hint for you (do not log the full token publicly in prod).
-
-  console.log(
-    "✅ refreshed access_token prefix:",
-    data.access_token.slice(0, 12)
-  );
-  if (data.refresh_token) {
-    fs.writeFileSync("refresh_token.txt", data.refresh_token);
-
+  if (
+    data.refresh_token &&
+    data.refresh_token !== process.env.X_REFRESH_TOKEN
+  ) {
     console.warn(
       "X gave us a new refresh_token. Update Railway env X_REFRESH_TOKEN manually."
     );
