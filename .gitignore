@@ -1,5 +1,4 @@
 .env
 recent_posts.log
 refresh_token.txt
-tokensRuntime.js
 tokens.json

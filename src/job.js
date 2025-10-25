@@ -8,20 +8,17 @@ import { postToX } from "./xClient.js";
 async function main() {
   console.log("=== softment-x-bot job start ===");
 
-  // pick some trending idea (you can plug back pickTopicIdea() if you want)
-  const topicIdea = "...maybe read from hot_topics.txt here...";
-  const tweetText = await generatePost(topicIdea);
+  let text = await generatePost();
 
-  console.log("Tweet content:", tweetText);
-
-  if (!tweetText || tweetText.length === 0) {
-    console.log("No tweet generated, skipping.");
-    console.log("=== softment-x-bot job end ===");
-    return;
+  if (!text || typeof text !== "string") {
+    console.warn("generatePost() returned invalid text, using fallback.");
+    text = "Shipping fixes and watching Solidity try to break my day.";
   }
 
+  console.log("Tweet content (final):", text);
+
   try {
-    await postToX(tweetText);
+    await postToX(text);
   } catch (err) {
     console.error("Tweet failed:", err.message);
   }
