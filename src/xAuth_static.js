@@ -1,25 +1,26 @@
 // src/xAuth_static.js
 import fetch from "node-fetch";
-import { tokenState } from "./tokensRuntime.js";
+import { getTokenBundle, setTokenBundle } from "./tokensRuntime.js";
 
 const CLIENT_ID = process.env.X_CLIENT_ID;
 const CLIENT_SECRET = process.env.X_CLIENT_SECRET;
 const REDIRECT_URI = process.env.X_REDIRECT_URI;
 
-let currentAccessToken = tokenState.access_token;
-let currentRefreshToken = tokenState.refresh_token;
-let currentExpiry = tokenState.access_token_expires_at;
+// how early we refresh before expiry (30s safety)
+const SAFETY_MS = 30_000;
 
 function isAccessTokenFresh() {
-  if (!currentAccessToken || !currentExpiry) return false;
+  const { access_token, access_token_expires_at } = getTokenBundle();
+  if (!access_token || !access_token_expires_at) return false;
   const now = Date.now();
-  return now + 30000 < currentExpiry;
+  return now + SAFETY_MS < access_token_expires_at;
 }
 
-export async function getValidAccessToken() {
-  if (isAccessTokenFresh()) return currentAccessToken;
+// actually call X to refresh
+async function doRefresh() {
+  const { refresh_token } = getTokenBundle();
 
-  console.log("Access token expired or missing. Refreshing...");
+  console.log("Access token expired / missing. Refreshing…");
 
   const basicAuth = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString(
     "base64"
@@ -33,7 +34,7 @@ export async function getValidAccessToken() {
     },
     body: new URLSearchParams({
       grant_type: "refresh_token",
-      refresh_token: currentRefreshToken,
+      refresh_token,
       redirect_uri: REDIRECT_URI,
     }),
   });
@@ -41,18 +42,40 @@ export async function getValidAccessToken() {
   const data = await resp.json();
 
   if (!resp.ok) {
-    console.error("Refresh failed:", resp.status, data);
+    console.error("❌ Refresh failed:", resp.status, data);
     throw new Error("Could not refresh X access token");
   }
 
-  currentAccessToken = data.access_token;
-  currentRefreshToken = data.refresh_token || currentRefreshToken;
-  currentExpiry = Date.now() + data.expires_in * 1000;
+  // X returns:
+  // {
+  //   access_token: "...",
+  //   refresh_token: "...", // may rotate
+  //   expires_in: 7200,
+  //   ...
+  // }
 
-  console.log("✅ Token refreshed successfully");
-  console.log("Access token starts:", currentAccessToken.slice(0, 10));
-  console.log("Refresh token starts:", currentRefreshToken.slice(0, 10));
-  console.log("Expires at:", new Date(currentExpiry).toISOString());
+  const newAccessToken = data.access_token;
+  const newRefreshToken = data.refresh_token || refresh_token;
+  const newExpiry = Date.now() + data.expires_in * 1000;
 
-  return currentAccessToken;
+  setTokenBundle({
+    access_token: newAccessToken,
+    refresh_token: newRefreshToken,
+    access_token_expires_at: newExpiry,
+  });
+
+  console.log("✅ Token refreshed");
+  console.log("   access_token starts:", newAccessToken.slice(0, 10));
+  console.log("   refresh_token starts:", newRefreshToken.slice(0, 10));
+  console.log("   expires_at:", new Date(newExpiry).toISOString());
+
+  return newAccessToken;
+}
+
+// public fn the rest of the bot calls
+export async function getValidAccessToken() {
+  if (isAccessTokenFresh()) {
+    return getTokenBundle().access_token;
+  }
+  return doRefresh();
 }
