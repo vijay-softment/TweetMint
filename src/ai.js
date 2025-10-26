@@ -265,13 +265,15 @@ export async function generatePost() {
     const styleInstruction = buildStyleInstruction();
     const hotTopic = pickHotTopic();
 
+    //     Pick ONE strong idea only (not all of them):
+    // - ${hotTopic}
+
     const userInstruction = `
 You are tweeting as me, Vijay Rathore (@vijay_softment).
 
 Write ONE engaging tweet that sounds like I'm mid-work and Learning — typing from my phone right now while fixing, building, learning  or debugging something real and also learning advanced web3.
 
-Pick ONE strong idea only (not all of them):
-- ${hotTopic}
+
 
 Do NOT repeat what I said recently:
 ${recentMemory || "[fresh slate]"}
