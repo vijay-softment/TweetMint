@@ -104,18 +104,12 @@ function postProcessTweet(text) {
 
   // banned openers we REALLY don't want as first words
   // but don't nuke normal grammar. just remove that opener phrase if present.
-  t = t.replace(
-    /^(gm[\s,.-]|good morning[\s,.-])/i,
-    ""
-  );
+  t = t.replace(/^(gm[\s,.-]|good morning[\s,.-])/i, "");
   t = t.replace(
     /^(i finally fixed|still stuck|spent \d+ (hours|hrs) on)\b/i,
     ""
   );
-  t = t.replace(
-    /^(shipping and debugging again\.*\s*)/i,
-    ""
-  );
+  t = t.replace(/^(shipping and debugging again\.*\s*)/i, "");
 
   t = t.trim();
 
@@ -126,10 +120,12 @@ function postProcessTweet(text) {
     "gas fees are stupid"
   );
 
-  t = t.replace(
-    /anyone else seeing this\??/gi,
-    "" // we just don't want that CTA
-  ).trim();
+  t = t
+    .replace(
+      /anyone else seeing this\??/gi,
+      "" // we just don't want that CTA
+    )
+    .trim();
 
   // collapse duplicate emojis (🤯🤯🤯 -> 🤯)
   t = t.replace(/([\p{Emoji_Presentation}\p{Emoji}\u200d])\1+/gu, "$1");
@@ -164,9 +160,10 @@ function postProcessTweet(text) {
   // (like 1 weird fragment without verbs), THEN fallback.
   // but only in that emergency.
   const tooShort = t.length < 20;
-  const noVerb = !/\b(am|is|are|was|were|fix|ship|build|broke|broke|leak|cost|audit|pay|deploy|test|debug)/i.test(
-    t
-  );
+  const noVerb =
+    !/\b(am|is|are|was|were|fix|ship|build|broke|broke|leak|cost|audit|pay|deploy|test|debug)/i.test(
+      t
+    );
 
   if (tooShort || noVerb) {
     t =
@@ -288,9 +285,8 @@ WHO I AM:
 
 TONE:
 - Write in plain Indian English — short, engaging, sarcastic, or blunt.
-- Sound like a tired but sharp engineer posting a thought, not a corporate brand.
+- Sound like a sharp engineer and Web3 learner posting a thought, not a corporate brand.
 - Assume the reader codes — skip explanations.
-- Frustration or relief is okay.
 - Avoid hype or motivational tone.
 
 EXTRAS (controlled randomness):
