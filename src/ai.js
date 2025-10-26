@@ -72,92 +72,108 @@ function capitalizeFirstAlpha(str) {
 
 // clean & humanize
 function postProcessTweet(text) {
-  let t = text.trim();
+  let t = text?.trim() || "";
 
-  // unwrap {"text":"..."} etc
-  const m1 = t.match(/"text"\s*:\s*"([^"]+)"/i);
-  const m2 = t.match(/'text'\s*:\s*'([^']+)'/i);
-  if (m1) t = m1[1];
-  else if (m2) t = m2[1];
+  // unwrap {"text":"..."} style responses
+  const mJsonDbl = t.match(/"text"\s*:\s*"([^"]+)"/i);
+  const mJsonSgl = t.match(/'text'\s*:\s*'([^']+)'/i);
+  if (mJsonDbl) t = mJsonDbl[1];
+  else if (mJsonSgl) t = mJsonSgl[1];
 
-  // kill bullets / code fences / junk
-  t = t.replace(/^[\*\-\•]+?\s*$/gm, "");
-  t = t.replace(/^[\*\-\•]+?\s+/gm, "");
-  t = t.replace(/^[\*\-\•]+?(?=\S)/gm, "");
-  t = t.replace(/```+/g, "");
-  t = t.replace(/`+/g, "");
-  t = t.replace(/<BLANKLINE>/gi, "");
-
-  // strip fake headers
-  t = t.replace(/^(text|post|update)\s*[\n:]+/i, "");
-  t = t.replace(/^\[.*?\]\s*/gm, "");
-  t = t.replace(/^plaintext\s*/i, "");
-
-  // collapse too many newlines
-  t = t.replace(/\n{3,}/g, "\n\n");
-
-  // nuke boring/opening boilerplate we hate
+  // remove code fences / markdown junk
   t = t
-    .replace(
-      /^(shipping and debugging again|still stuck|i finally fixed|still fighting|spent [0-9]+ (hours|hrs) on|tests passing locally|gm[\s,.-]|good morning[\s,.-])/i,
-      ""
-    )
-    .trimStart();
+    .replace(/```+/g, "")
+    .replace(/`+/g, "")
+    .replace(/<BLANKLINE>/gi, "");
 
-  // kill fake-humble prod flex
-  t = t.replace(/pretending (it('|’)s|it's) production[- ]ready\.?/i, "");
-  t = t.replace(/acting like it's production[- ]ready\.?/i, "");
-
-  // ban "anyone else seeing this"
-  t = t.replace(/anyone else seeing this\??$/i, "").trim();
-
-  // normalize \n\n literals into real blank lines
+  // normalize literal "\n\n" into real newlines
   t = t.replace(/\\n\\n/g, "\n\n");
 
-  // per-line cleanup of stray quotes
+  // collapse 3+ newlines to max 2
+  t = t.replace(/\n{3,}/g, "\n\n");
+
+  // strip boilerplate headers like "Update:" / "Plaintext"
+  t = t.replace(/^(plaintext|text|post|update)\s*[:\-]?\s*/i, "");
+
+  // kill lines that are just bullets like "*", "-", "•"
   t = t
     .split("\n")
-    .map((line) =>
-      line
-        .trimStart()
-        .replace(/^["'`]+/, "")
-        .replace(/["'`]+$/, "")
-    )
+    .map((line) => line.replace(/^[\*\-\•]+\s*/g, "").trimEnd())
     .join("\n");
 
-  // kill common cringe phrases
+  // banned openers we REALLY don't want as first words
+  // but don't nuke normal grammar. just remove that opener phrase if present.
   t = t.replace(
-    /gas fees? (are )?(insane|crazy|killing me)[^\.!?]*[\.!?]?/gi,
-    "gas math is dumb."
+    /^(gm[\s,.-]|good morning[\s,.-])/i,
+    ""
   );
   t = t.replace(
-    /nft (floor )?prices? (are )?(a joke|dead|tanking)[^\.!?]*[\.!?]?/gi,
-    "nft stuff is sliding."
+    /^(i finally fixed|still stuck|spent \d+ (hours|hrs) on)\b/i,
+    ""
   );
   t = t.replace(
-    /royalty math (is )?(broken|wrong|off)( again)?/gi,
-    "payout math was wrong."
-  );
-  t = t.replace(
-    /overflow( in)? (the )?(reward|royalty|payout) math( again)?/gi,
-    "found a payout calc bug."
+    /^(shipping and debugging again\.*\s*)/i,
+    ""
   );
 
-  // collapse duplicate emojis
+  t = t.trim();
+
+  // remove overused cringe phrases but keep grammar around them
+  // ex: "gas fees are insane today" -> "gas fees are stupid today."
+  t = t.replace(
+    /gas fees? (are )?(insane|crazy|killing (me|us)|unusable)/gi,
+    "gas fees are stupid"
+  );
+
+  t = t.replace(
+    /anyone else seeing this\??/gi,
+    "" // we just don't want that CTA
+  ).trim();
+
+  // collapse duplicate emojis (🤯🤯🤯 -> 🤯)
   t = t.replace(/([\p{Emoji_Presentation}\p{Emoji}\u200d])\1+/gu, "$1");
 
-  // trim leftover double spaces
+  // trim leftover double/triple spaces
   t = t.replace(/\s{2,}/g, " ");
 
-  // remove leading punctuation if we deleted the opener
-  t = t.replace(/^(\.|,|\-|\|)+\s*/, "");
+  // ensure proper line endings:
+  // each non-empty line should end with "." or "?"
+  t = t
+    .split("\n")
+    .map((line) => {
+      const trimmed = line.trim();
+      if (!trimmed) return trimmed;
+      if (/[\.?!…]$/.test(trimmed)) return trimmed; // already ends nicely
+      return trimmed + "."; // add period if missing
+    })
+    .join("\n");
 
-  // Capitalize first letter now
-  t = capitalizeFirstAlpha(t);
+  t = t.trim();
 
-  return t.trim();
+  // Capitalize first alphabetic char in whole tweet
+  const firstAlphaIndex = t.search(/[a-z]/i);
+  if (firstAlphaIndex >= 0) {
+    t =
+      t.slice(0, firstAlphaIndex) +
+      t[firstAlphaIndex].toUpperCase() +
+      t.slice(firstAlphaIndex + 1);
+  }
+
+  // final sanity: if after all this we produced something super broken
+  // (like 1 weird fragment without verbs), THEN fallback.
+  // but only in that emergency.
+  const tooShort = t.length < 20;
+  const noVerb = !/\b(am|is|are|was|were|fix|ship|build|broke|broke|leak|cost|audit|pay|deploy|test|debug)/i.test(
+    t
+  );
+
+  if (tooShort || noVerb) {
+    t =
+      "People yelling at auditors like Solidity wrote itself. The contract is the contract. Someone still pushed that code.";
+  }
+
+  return t;
 }
-
 // pick a hot topic
 function pickHotTopic() {
   const topics = [
