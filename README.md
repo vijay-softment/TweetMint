@@ -10,7 +10,6 @@ It automatically posts human-like developer tweets every 2 hours — about **Web
 - 🤖 **AI-Generated Posts** — Uses Hugging Face models (TinyLlama / Arch-Router) to create tweets in your real voice.
 - 🔁 **Automatic Posting to X** — Tweets every 2 hours via X API (OAuth 2.0).
 - 💬 **Memory System** — Remembers last 10 posts to avoid repetition.
-- 🔥 **Trending Contexts** — Picks random real-world dev topics from `hot_topics.txt`.
 - 🧩 **Token Refreshing** — Automatically refreshes access tokens; no need to reauthorize.
 - 🩵 **Easy Deployment** — Fully ready for [Railway](https://railway.app) deployment.
 
