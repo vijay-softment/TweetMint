@@ -271,7 +271,7 @@ export async function generatePost() {
     const userInstruction = `
 You are tweeting as me, Vijay Rathore (@vijay_softment).
 
-Write ONE engaging tweet that sounds like I'm mid-work and Learning — typing from my phone right now while fixing, building, learning  or debugging something real and also learning advanced web3.
+Write ONE engaging tweet that sounds like I'm mid-work and Learning -  fixing, building, learning  or debugging something real and also learning advanced web3.
 
 
 
@@ -294,8 +294,7 @@ TONE:
 EXTRAS (controlled randomness):
 - About 1 in 3 tweets may include **1 relevant hashtag** (like #Solidity, #Flutter, #DeFi, #Web3).
 - About 1 in 3 tweets may include **1 emoji** (like 🤯, 🔥 , 🧠, ⚙️, 😅).
-- Occasionally, tag **relevant accounts** like:
-  @foundry_rs, @hardhatHQ, @chainlink, @flutterdev, @awscloud — but only if naturally relevant to the tweet context.
+- Occasionally, tag **relevant accounts** but only if naturally relevant to the tweet context.
 - Never combine hashtag + mention + emoji all in one tweet.
 
 FORMAT RULES:
